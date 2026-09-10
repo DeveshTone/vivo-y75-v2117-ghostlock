@@ -1,6 +1,5 @@
 # Contributing — vivo Y75 V2117
 
-Keep this repo read-only. Every kernel touch stays **forked + RAM-only**.
 
 - Scope: V2117 MT6781 4.14.186-gdfd963175-dirty only
 - Header: targets/target_y75.h only
