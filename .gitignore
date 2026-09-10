@@ -1,0 +1,15 @@
+# Binaries and large dumps — do not publish
+boot/
+vmlinux/
+src/perf_leak
+src/race_oracle
+src/race_oracle_v2
+src/y75_pipe_probe
+src/y75_pipe_probe_final
+src/y75_heap_alias_verify
+src/y75_leak_probe
+src/y75_msg_probe
+*.o
+*.so
+# Device outputs
+*.log

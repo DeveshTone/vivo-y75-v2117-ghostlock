@@ -1,0 +1,40 @@
+=== vivo Y75 V2117 4.14.186-gdfd963175-dirty — Waiter geometry verdict ===
+2026-09-10 via vmlinux_new.elf capstone (pyelftools) — no 6.x BTF needed
+Kallsyms 106256 syms _text 0xffffff8008080000 Live KASLR 0xffffff858c000000 perf_leak 512 paranoid -1
+
+1) Futex path — op 11 = FUTEX_WAIT_REQUEUE_PI inside do_futex
+
+   SyS_futex 0x8190b70 -> do_futex frame 0x260 (sub 0x200+stp 0x60, x29=sp)
+     -> futex_requeue frame 0x140 (x29=sp+0xe0, waiter x29-0x68 = sp+0x78)
+     -> futex_wait    frame 0x140 (x29=sp+0xe0, waiter x29-0x58 = sp+0x88)
+     -> futex_lock_pi frame 0x190 (x29=sp+0x130, waiter x29-0x58 = sp+0xd8)
+
+   Capstone:
+     futex_requeue sp+0x78 (T_requeue-0xc8) 4 xzr sp+0x90..0xb8
+     waiter lock at waiter+0x38 = sp+0xb0
+
+   CRITICAL: NO futex_wait_requeue_pi symbol on 4.14 (0 hits).
+   v4.txt T-0x110 in futex_lock_pi was wrong function for requeue PI.
+
+2) Select path
+
+   sys_pselect6 frame 0xa0 fp 0x40 2 xzr sp+0x8 — too small
+   core_sys_select frame 0x1c0 fp 0x160 0 xzr direct
+   do_select frame 0x360 (864B) fd_set lives here, not in pselect
+
+   256B stack_fds 0..14 model is 6.12-only. Newverdict: pselect 320 NOT feasible.
+
+3) Feasibility verdict
+   pselect stack overlay NOT feasible on this 4.14.186 vivo build.
+   Word 13+ bucket (PGO+LTO) like ghostlock-oneplus Find X9 Ultra.
+   All y75_v2/v3/v4 pass pselect6(&in,NULL,NULL) so exp word 41 never copied.
+
+4) Fix
+   Next primitive is msg_msg via sendmsg 4KB or pipe_buffer, not larger NFDS.
+   Path 2 from v4.txt:9. Full waiter->lock 0x38 control, no Stack[-0xd8] gamble.
+
+5) Provenance
+   vmlinux_new.elf ELF aarch64 44MB 106k syms Capstone 5.0.7+pyelftools
+   Live V2117 MT6781 Android13 SDK33 paranoid -1 Enforcing
+   perf_leak 0x858c000000 8/8 requeue EDEADLK=35 waiter 110
+   See y75_clean/targets/target_y75.h SELINUX 0x01914b08 INIT 0x02390000 fixed.

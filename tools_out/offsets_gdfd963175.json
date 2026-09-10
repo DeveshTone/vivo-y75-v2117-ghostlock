@@ -1,0 +1,27 @@
+{
+  "uname": "4.14.186-gdfd963175-dirty",
+  "arch": "aarch64",
+  "kallsyms_text_base": "0xffffff8008080000",
+  "live_kaslr_demo_base": "0xffffff858c000000",
+  "provenance": "vivo Y75 V2117 MT6781 4.14.186 PD2150F_EX_A_38.21.2 + fallback y75_clean 38.17.2 vmlinux_new.elf 106k kallsyms",
+  "notes": "Generated from y75_clean extraction on 2026-09-10. Steps 5-6 went 6/6 pipe 12/12 on live 38.21.2 with futex_requeue sp+0x78 lock sp+0xb0. BTF not found is expected on 4.14. Import via ghostlock-app Import offsets.json or place at /data/local/tmp/offsets.json GHOSTLOCK_HOME.",
+  "offsets_image_relative": {
+    "SELINUX_ENFORCING_OFF": "0x01914b08",
+    "INIT_TASK_OFF": "0x02390000",
+    "KIMAGE_TEXT_BASE": "0xffffff8008080000",
+    "COMMIT_CREDS_OFF": "0x000e6170",
+    "PREPARE_KERNEL_CRED_OFF": "0x000e6508",
+    "RB_ERASE_CACHED_OFF": "0x01263580",
+    "ANON_PIPE_BUF_OPS_OFF": "0x01235d00",
+    "FUTEX_REQUEUE_WAITer_SP": "0x78",
+    "FUTEX_REQUEUE_LOCK_SP": "0xb0",
+    "FUTEX_REQUEUE_FRAME": "0x140",
+    "WAITER_SIZE_COMPACT": "0x50"
+  },
+  "header_y75_clean": "y75_clean/targets/target_y75.h SELINUX 0x01914b08 INIT 0x02390000 fixed from 0x01994b08/0x02410000",
+  "live_example_absolute": {
+    "KASLR_base_example": "0xffffff858c000000",
+    "selinux_state_example": "0xffffff858d914b08",
+    "init_thread_union_example": "0xffffff858e390000"
+  }
+}
