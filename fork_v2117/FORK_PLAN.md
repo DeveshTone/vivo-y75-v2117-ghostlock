@@ -1,5 +1,8 @@
 # Fork plan V2117 — ghostlock-app pipe fork for MT6781 4.14.186-gdfd963175-dirty
 
+> **Superseded (2026-09-12): the overlay road this fork assumed is closed — structural NO.
+> Kept as record. Verdict: [../docs/CLOSURE.md](../docs/CLOSURE.md) · analysis: [../docs/ANALYSIS.md](../docs/ANALYSIS.md).
+
 ## Why stock ghostlock is not one-tap here
 - Ships `37` kernels `6.1..6.12`, checks exact `uname -r` — your `4.14.186-gdfd963175-dirty` shows `Unsupported`
 - Internal route assumes `6.x` `futex_wait_requeue_pi` symbol with `pselect 320 256B` — your `4.14` has `0/106k` hits for that symbol, opcode `11` lives in `futex_requeue frame 0x140 x29=sp+0xe0 waiter x29-0x68 = sp+0x78 lock sp+0xb0`

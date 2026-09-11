@@ -19,7 +19,7 @@
 | Gate | Build | Live `38.21.2` | Verdict |
 |---|---|---|---|
 | `perf_leak` | `vmlinux 0x8080000` | `0x858c000000 512 addrs` | `KASLR` re-leaks clean every boot |
-| `race_oracle 8/8` | `futex_requeue sp+0x78` | `requeue 35 waiter 110 HIT EDEADLK 8/8` | `UAF` window reachable |
+| `race_oracle 8/8` | `futex_requeue sp+0x78` | `waiter errno 35 ×8 HIT` (phone; lab mirror reports requeue-side) | `UAF` window reachable |
 | `pipe_probe_final 6/6` | `pipe 12/12` | `6/6 HIT` `requeue 35 waiter 110` | Reclaim holds |
 | `leak_probe 6/6` | `LEAK-ROUND` tags | `6/6` `LEAK-ROUND-N` readable | Heap alias plumbing intact |
 | `heap_alias_verify 4/4` | `ALIAS-N-POST-0` | `4/4 HEAP-ALIAS RECLAIM` `read-first` | `38.17.2` waiter map still live on `38.21.2` |
