@@ -13,3 +13,10 @@ src/y75_msg_probe
 *.so
 # Device outputs
 *.log
+# Lab build products (sources lab/lab_init.c + lab/mkinitramfs.py are published)
+lab/lab_init
+lab/race_oracle
+lab/initramfs.cpio
+# Full symbol table + raw session logs — kept local, never published
+logs/kallsyms_output.txt
+docs/record/

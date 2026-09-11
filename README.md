@@ -13,11 +13,16 @@
 
 Stock `ghostlock-app` (YuKongA, `6.1 .. 6.12`, `pselect 320`) is **not** one-tap on this `4.14`. This repo proves **why**, and proves the `4.14` heap reclaim that is.
 
+> **Verdict (2026-09-12): the futex-overlay road is closed — structural NO.** Geometry ✅, value shape ✅,
+> order ❌, retention ❌ (kernel-lifetime facts, proven). Gates below stand as read-only record.
+> Full technical analysis: [docs/ANALYSIS.md](docs/ANALYSIS.md) · close-out: [docs/CLOSURE.md](docs/CLOSURE.md).
+
 ---
 
 ## Table of Contents
 
 - [TL;DR — Live Gates](#tldr--live-gates)
+- [Verdict — Road Closed](#verdict--road-closed)
 - [Why pselect Fails, Why Pipe Succeeds](#why-pselect-fails-why-pipe-succeeds)
 - [Quick Start — Every Boot (Read-Only)](#quick-start--every-boot-read-only)
 - [Repository Layout](#repository-layout)
@@ -41,6 +46,19 @@ Stock `ghostlock-app` (YuKongA, `6.1 .. 6.12`, `pselect 320`) is **not** one-tap
 | `heap_alias_verify 4/4` | `ALIAS-N-POST-0` | `4/4 HEAP-ALIAS RECLAIM` `read-first` | `38.17.2` map still live on `38.21.2` |
 
 All five are **read-only** — no `selinux_state` or `cred` written. See [docs/ACHIEVEMENTS.md](docs/ACHIEVEMENTS.md).
+
+## Verdict — Road Closed
+
+| Leg | Result | Proof |
+| :--- | :--- | :--- |
+| Geometry (slot reachable) | ✅ closed | waiter `T-0x2F0`, inside all msg frames (`ANALYSIS §1`) |
+| Value shape (bytes incl. lock) | ✅ closed | `select` bitmaps cover the full object (`ANALYSIS §4`) |
+| Order (plant before consume) | ❌ fails, proven | consumer runs in-window, planting lands ~3s post-wake |
+| Retention (slot outlives frame) | ❌ fails, proven | all five pointer candidates die on the wake path |
+
+Reopen condition (exact): a walk inside `[block, wake+unqueue]` with a named retainer, plus logs
+showing `AFTER→walk` order on the same stack. Details: [docs/CLOSURE.md](docs/CLOSURE.md),
+[docs/ANALYSIS.md](docs/ANALYSIS.md).
 
 ## Why pselect Fails, Why Pipe Succeeds
 
@@ -74,7 +92,12 @@ Binaries stay at `/data/local/tmp/` — see `src/` for builds with `aarch64-linu
 ```
 y75_clean/
 ├── README.md
-├── docs/ACHIEVEMENTS.md        # full 5-gate table + provenance
+├── docs/
+│   ├── ACHIEVEMENTS.md       # full 5-gate table + provenance
+│   ├── ANALYSIS.md           # consolidated technical analysis (geometry, walks, verdicts)
+│   └── CLOSURE.md            # road-closed verdict + reopen condition
+├── archive/                  # old y75_v2..v4 pselect attempts (never copied exp[9])
+├── lab/                      # QEMU virt bench harness sources (lab_init.c, mkinitramfs.py)
 ├── fork_v2117/
 │   ├── FORK_PLAN.md            # V2117-only pipe fork for ghostlock-app
 │   └── src/kernels/4.14.186-gdfd963175-dirty/offsets.h
@@ -82,6 +105,8 @@ y75_clean/
 ├── tools_out/
 │   ├── offsets_gdfd963175.json # 1360 B for exact uname -r, at /data/local/tmp/offsets.json
 │   ├── waiter_map.py           # capstone sp+0x78 extractor
+│   ├── feas_y75_v2.py          # feasibility pass over dump + kallsyms
+│   ├── publish_helper.py       # repo doc generator
 │   ├── run_step2.bat           # one-click KASLR + 6/6
 │   └── recvmsg_frame.py        # alternative stack-spray survey (0x180 vs 0xa0)
 ├── logs/
@@ -90,14 +115,17 @@ y75_clean/
 ├── src/                        # reclaim-only probes (no selinux/cred write)
 │   ├── perf_leak.c
 │   ├── race_oracle.c
+│   ├── race_oracle_v2.c        # counts EDEADLK on either side
+│   ├── y75_pipe_probe.c        # pipe reclaim v2 (robust)
 │   ├── y75_pipe_probe_final.c
 │   ├── y75_leak_probe.c
+│   ├── y75_msg_probe.c         # msg_msg attempt (filtered: ENOSYS on stock ROM)
 │   └── y75_heap_alias_verify.c
 ├── boot/                       # 39 MB boot.img — kept off GitHub (see .gitignore)
 └── vmlinux/                    # 44 MB vmlinux_new.elf — kept off GitHub
 ```
 
-`archive/` holds the old `y75_v2..v4` `pselect6(&in,NULL,NULL)` that never copied `exp[9]`.
+`logs/kallsyms_output.txt` (106k) stays local — never committed.
 
 ## Canonical Offsets
 
@@ -133,6 +161,12 @@ python3 ghostlock-oneplus/tools/extract_btf.py vmlinux/vmlinux_new.elf
 # alternative spray survey
 python3 tools_out/recvmsg_frame.py
 # → __sys_recvmsg 0x180 fp 288  (bigger than sys_pselect6 0xa0, still on-stack)
+
+# feasibility pass over dump + kallsyms (needs logs/kallsyms_output.txt, kept local)
+python3 tools_out/feas_y75_v2.py
+
+# QEMU virt bench harness sources (needs a 4.14 arm64 Image + initramfs rebuild)
+# lab/lab_init.c (PID 1: mounts, dumps kallsyms, runs race oracle) + lab/mkinitramfs.py
 ```
 
 See `logs/extract_target.log` for the `DIFF` vs `6.x` defaults.
