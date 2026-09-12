@@ -26,7 +26,7 @@ unprivileged shell; device-side probes allocate and touch **own memory only**.
 | open/handshake/setup/version | `fd=3`, API `{11,38}`, DDK `K:r32p1-00bet5(GPL)` — all succeed |
 | GPU alloc + map + read-back | `MATCH` on own bytes (`MEM_ALLOC`, cookie `mmap`) |
 | ION heap survey (masks 0–7) | heap 0 fully works (alloc/map/mmap/free); rest absent/unusable |
-| `MEM_IMPORT` ×5 shapes (2 types, 4 flag sets, 3 donor kinds, +JIT init) | identical clean `ENOMEM`, zero partial state |
+| `MEM_IMPORT` ×6 shapes (2 types, 4 flag sets, 3 donor kinds, +JIT init) | identical clean `ENOMEM`, zero partial state |
 
 ## Standing
 Bug present + chain mapped + channel proven; the single doorway (`IMPORT`) refuses all tested

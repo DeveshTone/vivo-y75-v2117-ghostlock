@@ -68,7 +68,7 @@ branch-2 proposal review (accepted as negative result).
 | Trigger chain | ✅ `mali0` → submit → external resources → vulnerable pin, all with addresses |
 | Channel (live shell) | ✅ open/handshake/setup/version queries all succeed |
 | Alloc + map + read-back | ✅ own GPU memory round-trips (`MATCH`) |
-| Import (5 input shapes) | ❌ identical `ENOMEM` — gate reads nothing attacker-controlled |
+| Import (6 input shapes) | ❌ identical `ENOMEM` — gate reads nothing attacker-controlled |
 
 One gate stands between here and the vulnerable function: `MEM_IMPORT` acceptance.
 Binder-class bugs are closed by the `2024-11-01` patch level, not pursued.
